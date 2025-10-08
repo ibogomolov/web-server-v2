@@ -5,7 +5,7 @@ plugins {
 }
 
 application {
-    mainClass = 'com.example.ibogomolov.Main'
+    mainClass = 'com.example.ibogomolov.Application'
 }
 
 group = 'com.example.ibogomolov'
@@ -16,6 +16,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'commons-cli:commons-cli:1.10.0'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

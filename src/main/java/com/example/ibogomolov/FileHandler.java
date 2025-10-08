@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpHandlers;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,20 +14,21 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FileHandler implements HttpHandler {
+public class FileHandler implements HttpHandler {
 
     public static final List<String> ALLOWED_METHODS = List.of("GET");
 
-    private String rootDir;
+    private final Path rootDir;
 
     /**
      * Inspired by the similar one in sun.net.httpserver.simpleserver.FileServerHandler.
      */
-    public static HttpHandler create(String rootDir) {
+    public static HttpHandler create(@NonNull Path rootDir) {
         HttpHandler badMethodHandler = HttpHandlers.of(HttpURLConnection.HTTP_BAD_METHOD,
                 Headers.of("Allow", "GET"), "");
         return HttpHandlers.handleOrElse(r -> ALLOWED_METHODS.contains(r.getRequestMethod()),
@@ -37,14 +39,14 @@ public final class FileHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String relativePath = exchange.getRequestURI().getPath();
         IO.println(String.format("Accessing %s%s", this.rootDir, relativePath));
-        File file = new File(this.rootDir, relativePath);
+        File file = new File(this.rootDir.toString(), relativePath);
         if (file.exists() && file.isFile() && file.canRead()) {
             FileHandler.setContentType(file, exchange);
             exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, file.length());
             try (OutputStream output = exchange.getResponseBody()) {
                 Files.copy(file.toPath(), output);
             } catch (IOException e) {
-                System.err.println("Error reading file " + file.getAbsolutePath());
+                System.err.printf("Error reading file %s%n", file.getAbsolutePath());
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_INTERNAL_ERROR, -1);
                 exchange.close();
             }
@@ -57,6 +59,5 @@ public final class FileHandler implements HttpHandler {
     private static void setContentType(File file, HttpExchange exchange) {
         String mimeType = URLConnection.guessContentTypeFromName(file.getName());
         exchange.getResponseHeaders().add("Content-Type", mimeType);
-        IO.println(exchange.getResponseHeaders());
     }
 }
