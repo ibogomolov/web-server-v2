@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.util.concurrent.Executors;
 
 
 public class Application {
@@ -31,7 +32,7 @@ public class Application {
             HttpServer server = HttpServer.create();
             server.bind(new InetSocketAddress(port), 0);
             server.createContext("/", FileHandler.create(webRoot));
-            server.setExecutor(new CustomThreadPoolExecutor(MAX_THREADS_COUNT));
+            server.setExecutor(Executors.newFixedThreadPool(MAX_THREADS_COUNT));
             server.start();
             IO.println("The file server is started.");
         } catch (IOException e) {
@@ -50,7 +51,7 @@ public class Application {
 
             Path root = cmd.getParsedOptionValue("root");
             if (!isValidWebRoot(root)) {
-                throw new ParseException("Invalid web root");
+                throw new ParseException("Invalid web root: it must be an existing directory with read access.");
             }
             this.webRoot = root;
         } catch (ParseException pe) {
