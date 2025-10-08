@@ -91,7 +91,7 @@ class FileHandlerTest {
     }
 
     @Test
-    void test() throws IOException {
+    void exceptionWhileCopyingFile() throws IOException {
         Path fileIn = tempDir.resolve("page.html");
         FileOutputStream stream = new FileOutputStream(fileIn.toFile());
         stream.write("<h1>Hello world</h1>".getBytes());
