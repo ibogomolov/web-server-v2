@@ -26,7 +26,7 @@ public class FileHandler implements HttpHandler {
     private final Path rootDir;
 
     /**
-     * Inspired by the similar one in sun.net.httpserver.simpleserver.FileServerHandler.
+     * Inspired by the similar method in sun.net.httpserver.simpleserver.FileServerHandler.
      */
     public static HttpHandler create(@NonNull Path rootDir) {
         HttpHandler badMethodHandler = HttpHandlers.of(HttpURLConnection.HTTP_BAD_METHOD,
